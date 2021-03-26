@@ -38,7 +38,7 @@ public class RunSelenium {
 		String s = x.getText();
 		
 		System.out.println("Text content: "+ s);
-		class1.main(s);
+		GetNouns.main(s);
 	}
 	
 	public void run() {
