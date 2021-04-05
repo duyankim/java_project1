@@ -24,7 +24,15 @@ public class RunSelenium {
 	//properties
 	public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
 	public static String WEB_DRIVER_PATH = "C:\\Users\\kim\\Documents\\project\\chromedriver.exe";
-	public static String TEST_URL = "https://www1.president.go.kr/petitions/?c=0&only=2&page=1&order=2";
+	public static String TEST_URL = "https://www1.president.go.kr/petitions/?c=0&only=2&page=1&order=1";
+	WebElement articleId;
+	WebElement category;
+	WebElement vote;
+	WebElement startDate;
+	WebElement endDate;
+	WebElement post;
+	WebElement title;
+	WebElement content;
 	
 	public static void main(String[] args) {
 		
@@ -34,8 +42,9 @@ public class RunSelenium {
 	
 	public RunSelenium() {
 		System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
-
 		ChromeOptions options= new ChromeOptions();
+		options.addArguments("--headless");
+		options.addArguments("--no-sandbox");
 		options.setCapability("ignoreProtectedModeSettings", true);
 		driver = new ChromeDriver(options);
 	}
@@ -53,29 +62,61 @@ public class RunSelenium {
 			for (i=1; i <= list; i++) {
 				driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 
-				//리스트에서 게시물 클릭하기
+				//게시물 번호 가져오기
 				js.executeScript("scroll(0, 300)");
-				WebElement post = driver.findElement(By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div/div/div[2]/div[2]/div[4]/div/div[2]/div[2]/ul/li[" + i + "]/div/div[3]/a"));
-				post.click();
-				driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
-				js.executeScript("return document.getElementById('sitemap').remove();");
+				articleId = driver.findElement(By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div/div/div[2]/div[2]/div[4]/div/div[2]/div[2]/ul/li["+ i +"]/div/div[1]"));
+				System.out.println("articleId: " + articleId.getText());
 				
-				By loadingImage = By.id("loading image ID");
-
-				WebDriverWait wait = new WebDriverWait(driver, 20);
-
-				wait.until(ExpectedConditions.invisibilityOfElementLocated(loadingImage));
+				//카테고리 가져오기
+				category = driver.findElement(By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div/div/div[2]/div[2]/div[4]/div/div[2]/div[2]/ul/li["+ i +"]/div/div[2]"));
+				System.out.println("category: " + category.getText());
+				
+				//공감수 가져오기
+				vote = driver.findElement(By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div/div/div[2]/div[2]/div[4]/div/div[2]/div[2]/ul/li["+ i +"]/div/div[5]"));
+				System.out.println("vote: " + vote.getText());
 				
 				//글의 제목 가져오기
-				WebElement postTitle = driver.findElement(By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div[1]/div/div[1]/div/h3"));
-				js.executeScript("arguments[0].scrollIntoView()", postTitle);
-				System.out.println("Post title: " + postTitle.getText());
+				title = driver.findElement(By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div/div/div[2]/div[2]/div[4]/div/div[2]/div[2]/ul/li["+ i +"]/div/div[3]/a"));
+				js.executeScript("arguments[0].scrollIntoView()", title);
+				System.out.println("Post title: " + title.getText());
+				driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+				
+				//리스트에서 게시물 클릭하기
+				post = driver.findElement(By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div/div/div[2]/div[2]/div[4]/div/div[2]/div[2]/ul/li[" + i + "]/div/div[3]/a"));
+				//post.click();
+				//Actions actions = new Actions(driver);
+				//actions.moveToElement(post).click().perform();
+				js.executeScript("arguments[0].click();", post);
+				driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+				
+				//불필요한 요소 제거하고 로딩 될 때까지 기다리기
+				//js.executeScript("return document.getElementById('sitemap').remove();");
+				//By loadingImage = By.id("loading image ID");
+				WebDriverWait wait = new WebDriverWait(driver, 10);
+				//wait.until(ExpectedConditions.invisibilityOfElementLocated(loadingImage));
+				//driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+				
+				//wait = new WebDriverWait(driver, 20);
+				//wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("h3.petitionsView_title")));
+				
+				
+				//js.executeScript("scroll(0, 50)");
+				//시작일 가져오기
+				startDate = driver.findElement(By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div[1]/div/div[1]/div/div[2]/ul/li[2]"));
+				//js.executeScript("arguments[0].scrollIntoView()", startDate);
+				System.out.println("startDate: " + startDate.getText());
+				driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+				
+				//종료일 가져오기
+				endDate = driver.findElement(By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div[1]/div/div[1]/div/div[2]/ul/li[3]"));
+				//js.executeScript("arguments[0].scrollIntoView()", startDate);
+				System.out.println("endDate: " + endDate.getText());
 				driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 				
 				//글의 내용 가져오기
-				js.executeScript("scroll(0, 300)");
-				WebElement postContents = driver.findElement(By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div[1]/div/div[1]/div/div[4]/div[4]"));
-				System.out.println("Post contents : " + postContents.getText());
+				js.executeScript("scroll(0, 60)");
+				content = driver.findElement(By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div[1]/div/div[1]/div/div[4]/div[2]"));
+				System.out.println("Post contents : " + content.getText());
 				
 				//WorkflowNounExtractor.main(postContents.getText());
 				System.out.println();
@@ -87,8 +128,7 @@ public class RunSelenium {
 			}
 			//js.executeScript("scroll(0, 300)");
 			WebElement page = driver.findElement(By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div/div/div[2]/div[2]/div[4]/div/div[4]/div/div[1]/a["+(p+1)+"]"));
-			//Actions actions = new Actions(driver);
-			//actions.moveToElement(page).click().perform();
+			
 			page.click();
 			driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 			
