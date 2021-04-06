@@ -26,12 +26,13 @@ public class RunSelenium {
 	// properties
 	public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
 	public static String WEB_DRIVER_PATH = "C:\\Users\\kim\\Documents\\project\\chromedriver.exe";
-	public static String TEST_URL = "https://www1.president.go.kr/petitions/?c=0&only=2&page=11&order=1";
+	public static String TEST_URL = "https://www1.president.go.kr/petitions/?c=0&only=2&page=1&order=1";
 	public static int LIST = 7;
 
 	public static String voteStr;
 	public static String startDateStr;
 	public static String endDateStr;
+	public static String contents;
 
 	public static void main(String[] args) {
 
@@ -58,49 +59,55 @@ public class RunSelenium {
 		ChromeOptions options = new ChromeOptions();
 		options.addArguments("--headless");
 		options.addArguments("--no-sandbox");
-		options.addArguments("disable-gpu");
-		options.addArguments("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
 		options.setCapability("ignoreProtectedModeSettings", true);
 		driver = new ChromeDriver(options);
 	}
 
 	public void getElements() {
-		int i, p = 11;
+		int i, p = 1;
 		js = (JavascriptExecutor) driver;
 
 		driver.manage().window().maximize();
 		WebElement popup = driver.findElement(By.xpath("/html/body/div[1]/div/div[3]/table/tbody/tr/td[2]/div"));
 		popup.click();
 
-		while (p < 13) {
-			for (i = 1; i <= LIST; i++) {
-				driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-				wait1 = new WebDriverWait(driver, 10);
+		try {
+			while (p < 22) {
+				for (i = 1; i <= LIST; i++) {
+					driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+					wait1 = new WebDriverWait(driver, 10);
 
-				getArticleId(i);
-				getCategory(i);
-				getVote(i);
-				getTitle(i);			
+					getCategory(i);
+					getVote(i);
+					getTitle(i);
 
-				clickPost(i);
-				waitLoading();				
-				
-				getStartDate(i);
-				getEndDate(i);
-				getContent(i);
+					driver.get("https://www1.president.go.kr/petitions/" + getArticleId(i));
+					driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+					// clickPost(i);
+					// waitLoading();
 
-				System.out.println();
-				System.out.println("******************************************");
+					getStartDate(i);
+					getEndDate(i);
+					getContent(i);
 
-				driver.navigate().back();
-				driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+					System.out.println();
+					System.out.println("******************************************");
 
+					driver.navigate().back();
+					driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+				}
+				nextBtn(p);
+				p++;
 			}
-			nextBtn(p);
-			p++;
+		} catch (org.openqa.selenium.ElementClickInterceptedException e1) {
+			waitLoading();
+		} catch (org.openqa.selenium.UnhandledAlertException e2) {
+			System.out.println("잠시후 다시 이용해주세요");
 		}
+
 	}
-	
+
 	public String getArticleId(int postOrder) {
 		// 게시물 번호 가져오기
 		WebElement articleId;
@@ -111,7 +118,7 @@ public class RunSelenium {
 		System.out.println("articleId: " + articleId.getText());
 		return articleId.getText();
 	}
-	
+
 	public String getCategory(int postOrder) {
 		// 카테고리 가져오기
 		WebElement category;
@@ -121,7 +128,7 @@ public class RunSelenium {
 		System.out.println("category: " + category.getText());
 		return category.getText();
 	}
-	
+
 	public String getVote(int postOrder) {
 		// 공감수 가져오기
 		WebElement vote;
@@ -133,7 +140,7 @@ public class RunSelenium {
 		System.out.println("vote: " + voteStr);
 		return voteStr;
 	}
-	
+
 	public String getTitle(int postOrder) {
 		// 글의 제목 가져오기
 		WebElement title;
@@ -144,39 +151,53 @@ public class RunSelenium {
 		System.out.println("Post title: " + title.getText());
 		return title.getText();
 	}
-	
+
 	public String getStartDate(int postOrder) {
 		// 시작일 가져오기
 		WebElement startDate;
-		startDate = driver.findElement(
-				By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div[1]/div/div[1]/div/div[2]/ul/li[2]"));
-		startDateStr = startDate.getText();
-		startDateStr = startDateStr.substring(5);
-		System.out.println("startDate: " + startDateStr);
+		try {
+			startDate = driver.findElement(
+					By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div[1]/div/div[1]/div/div[2]/ul/li[2]"));
+			startDateStr = startDate.getText();
+			startDateStr = startDateStr.substring(5);
+			System.out.println("startDate: " + startDateStr);
+		} catch (org.openqa.selenium.NoSuchElementException e) {
+			System.out.println("비공개처리됨");
+		}
 		return startDateStr;
 	}
-	
+
 	public String getEndDate(int postOrder) {
 		// 종료일 가져오기
 		WebElement endDate;
-		endDate = driver.findElement(
-				By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div[1]/div/div[1]/div/div[2]/ul/li[3]"));
-		endDateStr = endDate.getText();
-		endDateStr = endDateStr.substring(5);
-		System.out.println("endDate: " + endDateStr);
+		try {
+			endDate = driver.findElement(
+					By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div[1]/div/div[1]/div/div[2]/ul/li[3]"));
+			endDateStr = endDate.getText();
+			endDateStr = endDateStr.substring(5);
+			System.out.println("endDate: " + endDateStr);
+		} catch (org.openqa.selenium.NoSuchElementException e) {
+			System.out.println("비공개처리됨");
+		}
 		return endDateStr;
 	}
-	
+
 	public String getContent(int postOrder) {
 		// 글의 내용 가져오기
 		js.executeScript("scroll(0, 60)");
 		WebElement content;
-		content = driver.findElement(
-				By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div[1]/div/div[1]/div/div[4]/div[2]"));
-		System.out.println("Post contents : " + content.getText());
-		return content.getText();
+		try {
+			content = driver.findElement(
+					By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div[1]/div/div[1]/div/div[4]/div[2]"));
+			contents = content.getText();
+			System.out.println("Post contents : " + contents);
+		} catch (org.openqa.selenium.NoSuchElementException e) {
+			System.out.println("비공개처리됨");
+		}
+
+		return contents;
 	}
-	
+
 	public void clickPost(int postOrder) {
 		// 리스트에서 게시물 클릭하기
 		WebElement post;
@@ -184,16 +205,15 @@ public class RunSelenium {
 				"/html/body/div[3]/div[2]/section[2]/div[2]/div/div/div[2]/div[2]/div[4]/div/div[2]/div[2]/ul/li["
 						+ postOrder + "]/div/div[3]/a"));
 		js.executeScript("arguments[0].click();", post);
-		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
 	}
-	
+
 	public void waitLoading() {
 		// 로딩 될 때까지 기다리기
 		By loadingImage = By.id("loading image ID");
 		wait2 = new WebDriverWait(driver, 10);
 		wait2.until(ExpectedConditions.invisibilityOfElementLocated(loadingImage));
 	}
-	
+
 	public void nextBtn(int p) {
 		js.executeScript("scroll(0, 500)");
 
@@ -206,7 +226,7 @@ public class RunSelenium {
 			driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 		}
 	}
-	
+
 	public void next10(int p) {
 		WebElement nextBtn;
 		nextBtn = driver.findElement(By.xpath(
