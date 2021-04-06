@@ -20,6 +20,8 @@ public class RunSelenium {
 	public WebDriver driver;
 	public String url;
 	private JavascriptExecutor js;
+	WebDriverWait wait;
+	WebDriverWait wait1;
 	
 	//properties
 	public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
@@ -33,6 +35,7 @@ public class RunSelenium {
 	WebElement post;
 	WebElement title;
 	WebElement content;
+	
 	
 	public static void main(String[] args) {
 		
@@ -61,9 +64,11 @@ public class RunSelenium {
 		while (p < 10) {
 			for (i=1; i <= list; i++) {
 				driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+				wait1 = new WebDriverWait(driver, 10);
 
 				//게시물 번호 가져오기
 				js.executeScript("scroll(0, 300)");
+				
 				articleId = driver.findElement(By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div/div/div[2]/div[2]/div[4]/div/div[2]/div[2]/ul/li["+ i +"]/div/div[1]"));
 				System.out.println("articleId: " + articleId.getText());
 				
@@ -83,33 +88,22 @@ public class RunSelenium {
 				
 				//리스트에서 게시물 클릭하기
 				post = driver.findElement(By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div/div/div[2]/div[2]/div[4]/div/div[2]/div[2]/ul/li[" + i + "]/div/div[3]/a"));
-				//post.click();
-				//Actions actions = new Actions(driver);
-				//actions.moveToElement(post).click().perform();
 				js.executeScript("arguments[0].click();", post);
 				driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
 				
-				//불필요한 요소 제거하고 로딩 될 때까지 기다리기
-				//js.executeScript("return document.getElementById('sitemap').remove();");
-				//By loadingImage = By.id("loading image ID");
-				WebDriverWait wait = new WebDriverWait(driver, 10);
-				//wait.until(ExpectedConditions.invisibilityOfElementLocated(loadingImage));
-				//driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+				//로딩 될 때까지 기다리기
+				By loadingImage = By.id("loading image ID");
+				wait = new WebDriverWait(driver, 10);
+				wait.until(ExpectedConditions.invisibilityOfElementLocated(loadingImage));
 				
-				//wait = new WebDriverWait(driver, 20);
-				//wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("h3.petitionsView_title")));
-				
-				
-				//js.executeScript("scroll(0, 50)");
+
 				//시작일 가져오기
 				startDate = driver.findElement(By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div[1]/div/div[1]/div/div[2]/ul/li[2]"));
-				//js.executeScript("arguments[0].scrollIntoView()", startDate);
 				System.out.println("startDate: " + startDate.getText());
 				driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 				
 				//종료일 가져오기
 				endDate = driver.findElement(By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div[1]/div/div[1]/div/div[2]/ul/li[3]"));
-				//js.executeScript("arguments[0].scrollIntoView()", startDate);
 				System.out.println("endDate: " + endDate.getText());
 				driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 				
@@ -118,7 +112,6 @@ public class RunSelenium {
 				content = driver.findElement(By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div[1]/div/div[1]/div/div[4]/div[2]"));
 				System.out.println("Post contents : " + content.getText());
 				
-				//WorkflowNounExtractor.main(postContents.getText());
 				System.out.println();
 				System.out.println("******************************************");
 				
@@ -126,9 +119,9 @@ public class RunSelenium {
 				driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 
 			}
-			//js.executeScript("scroll(0, 300)");
+			//다음 페이지 클릭하기
+			js.executeScript("scroll(0, 300)");
 			WebElement page = driver.findElement(By.xpath("/html/body/div[3]/div[2]/section[2]/div[2]/div/div/div[2]/div[2]/div[4]/div/div[4]/div/div[1]/a["+(p+1)+"]"));
-			
 			page.click();
 			driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 			
